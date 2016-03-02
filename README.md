@@ -1,5 +1,5 @@
 # anaMed-en
-And analyzer for English that also identifies Eponyms and SNOMED CT terms.
+An analyzer for English that also identifies Eponyms and SNOMED CT terms.
 
 Dependencies:
 
