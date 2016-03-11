@@ -187,12 +187,19 @@ def snomedIdentifikatu(tagged,des,luzeenaBool):
             hMultzokatzeko[(k-1,k)] = hieT1
             fAgertuak.append(forma)
         if info["NamedEntityTag"] in ["PERSON","EPONYM"]:
+            hInd.append((k-1,k))
+            cvalue.append([""])
+            fAgertuak.append(forma)
             if (k-1,k) in hMultzokatzeko:
                 lagm = hMultzokatzeko[(k-1,k)]
                 lagm.append("EPONYM")
                 hMultzokatzeko[(k-1,k)]=lagm
+                hvalue.append(lagm)
             else:
                 hMultzokatzeko[(k-1,k)]=["EPONYM"]
+                hvalue.append(["EPONYM"])
+            
+
     #ZATI HAU, TERMINO LUZEENA BAKARRIK HARTZKEO ERABILTZEN DA
     if luzeenaBool:
         fOrdenatuak = fAgertuak[:]
@@ -239,6 +246,12 @@ def snomedIdentifikatu(tagged,des,luzeenaBool):
 
     multzoak = [[]]
     abstrakzioak = [[]]
+    print("hMultzokatzeko")
+    print(hMultzokatzeko)
+    print("hvalue")
+    print(hvalue)
+    print("hind")
+    print(hInd)
     sib = errekOsatu(0,hInd,formak,hvalue,fAgertuak,multzoak,abstrakzioak,0)
 
     return tArray,multzoak,abstrakzioak
