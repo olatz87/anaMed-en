@@ -1,18 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-##Exekutatu aurretik Java-ren bertsioa aldatu behar da:
-#setenv JAVA_HOME /usr/java/java18/
-#setenv PATH $JAVA_HOME/bin:$PATH
+"""
+
+"""
 
 
 import nltk,os,codecs,json,jsonrpclib,copy,sys
-# from nltk.tag.stanford import NERTagger
-# from nltk.tag.stanford import POSTagger
-# from nltk.tag.stanford import StanfordTagger
 from nltk.tokenize.stanford import StanfordTokenizer
 from pprint import pprint
-from corenlp import StanfordCoreNLP
+#from corenlp import StanfordCoreNLP
 
 
 class StanfordNLP:
@@ -23,7 +20,7 @@ class StanfordNLP:
         return json.loads(self.server.parse(text))
 
    
-class Deskribapenak:
+class TermZerbitzaria:
     def __init__(self, port_number = 9602):
         self.server = jsonrpclib.Server("http://158.227.106.115:%d" % port_number)
 
@@ -49,13 +46,14 @@ class Deskribapenak:
         return json.loads(self.server.kontzeptuakJaso(),encoding="utf-8")
 
 def eponimoakIdentifikatu(tagged):
+    epoFitx = '/ixadata/users/operezdevina001/Doktoretza/SintaxiMaila/Eponimoak/eponimoak.txt'
     aurrekaria = False
     lag = []
     lagForma = ''
     eponimoak = set()
     strOut = []
     parenthesis = ['-RSB-','-LSB-','-RRB-','-LRB-','AND/OR']
-    with codecs.open('/ixadata/users/operezdevina001/Doktoretza/SintaxiMaila/Eponimoak/eponimoak.txt',encoding='utf8') as fitx:
+    with codecs.open(epoFitx,encoding='utf8') as fitx:
         for line in fitx:
             line = line.strip()
             eponimoak.add(line.lower())
@@ -145,7 +143,7 @@ def errekOsatu(i,hInd,formak,hvalue,fAgertuak,multzoak,abstrakzioak,si):
         return si+1
 
 
-def hierarkiakIdentifikatu(tagged,des,luzeenaBool):
+def snomedIdentifikatu(tagged,des,luzeenaBool):
     formak = []
     fArray = []
     tArray = tagged[:]
@@ -239,21 +237,9 @@ def hierarkiakIdentifikatu(tagged,des,luzeenaBool):
             tArray[k] = lag
         l += 1
 
-    
-    # print("fArray",fArray)
-    # print("tArray",tArray)
-    # print("hInd",hInd)
-    # print("hvalue",hvalue)
-    # print("cvalue",cvalue)
-    # print("fAgertuak",fAgertuak)
-    # print("formak",formak)
-    # print("hMultzokatzeko",hMultzokatzeko)
     multzoak = [[]]
     abstrakzioak = [[]]
     sib = errekOsatu(0,hInd,formak,hvalue,fAgertuak,multzoak,abstrakzioak,0)
-    #print("BUKAERAKOAK")
-    #pprint(multzoak)
-    #pprint(abstrakzioak)
 
     return tArray,multzoak,abstrakzioak
 
@@ -265,41 +251,31 @@ def analizatu(term,luzeenaBool=False,multzokatu=False,abstrakzioak=False):
     multzokatu: multzokatzeak jaso nahi baditugu
     abstrakzioak: abstrakzioak jaso nahi baditugu
     """
-    # tokenak = nltk.word_tokenize(term)
-    # pos_tags = nltk.pos_tag(tokenak)
-    # ne_tagged = nltk.ne_chunk(pos_tags)
-    # eponimoekin = eponimoakIdentifikatu(ne_tagged)
     
     nlp = StanfordNLP()
     result = nlp.parse(term)
-    #pprint(result)
     if type(result) != type({}):
-        #print(term,result)
         if multzokatu:
             if abstrakzioak:
                 return None,None,None
             return None,None
         return None
     hitzak = result["sentences"][0]["words"]
-    #pprint(hitzak)
-    #print(term)
     eponimoekin = eponimoakIdentifikatu(hitzak)
-    #pprint(eponimoekin)
-    des = Deskribapenak()
-    #deskribapenak = des.deskribapenArabera()
-    hierarkiak,multzoak,absak = hierarkiakIdentifikatu(eponimoekin,des,luzeenaBool)
+    des = TermZerbitzaria()
+    analisia,multzoak,absak = snomedIdentifikatu(eponimoekin,des,luzeenaBool)
     if multzokatu:
         mulB = []
         for m in multzoak:
             if m not in mulB:
                 mulB.append(m)
         if abstrakzioak:
-            return hierarkiak,mulB,absak
+            return analisia,mulB,absak
         else:
-            return hierarkiak,mulB
+            return analisia,mulB
     elif abstrakzioak:
-        return hierarkiak,absak
-    return hierarkiak
+        return analisia,absak
+    return analisia
 
 def tokenizatu(term):
     return StanfordTokenizer().tokenize(term)
@@ -310,13 +286,6 @@ def tokenizatu(term):
 # print("Eginda!")
 
 if __name__ == "__main__":
-    #term = "biliary calculus with cholecystitis is the new term."
-    #pprint(analizatu("I am testing how the parser is working in Down's syndrome, Hopkins disease, Andersen-Berlin fracture and meninges (and also the parenthesis)"))
-    #    pprint(analizatu("And what about van Down?"))
-    #    pprint(analizatu("accidental practolol poisoning is an example of complex term."))
-    #term = "Down syndrome is the new term"
-    #term = "chloral sedative"
-    #term = "ganciclovir sodium"
     term = "methohexital sodium"
     term = "Refsum-Thiébaut disease".encode('utf-8')
     term = term.decode('utf-8')
@@ -324,9 +293,12 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2:
         term = sys.argv[1]
     print(term)
-    hie, mul = (analizatu(term,True,True,False))
-    #    pprint(analizatu("biliary calculus with cholecystitis",multzokatu=True))
-    #    analizatu("one two three four")
+    # analisia,multzoak = (analizatu(term,True,True,False))
+    # pprint(analisia)
+    # pprint(multzoak)
+    #pprint(len(analisia))
+
+    hie, mul, abst = (analizatu(term,True,True,True))
     pprint(hie)
     pprint(mul)
-    pprint(len(hie))
+    pprint(abst)
