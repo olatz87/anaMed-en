@@ -246,12 +246,12 @@ def snomedIdentifikatu(tagged,des,luzeenaBool):
 
     multzoak = [[]]
     abstrakzioak = [[]]
-    print("hMultzokatzeko")
-    print(hMultzokatzeko)
-    print("hvalue")
-    print(hvalue)
-    print("hind")
-    print(hInd)
+    #print("hMultzokatzeko")
+    #print(hMultzokatzeko)
+    #print("hvalue")
+    #print(hvalue)
+    #print("hind")
+    #print(hInd)
     sib = errekOsatu(0,hInd,formak,hvalue,fAgertuak,multzoak,abstrakzioak,0)
 
     return tArray,multzoak,abstrakzioak
