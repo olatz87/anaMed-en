@@ -177,7 +177,7 @@ def snomedIdentifikatu(tagged,des,luzeenaBool):
                 cvalue.append(kodT)
                 fAgertuak.append(f)
                 
-        kod1 = des.desc2sct(forma,info["Lemma"])
+        kod1 = des.desc2sct(forma.lower(),info["Lemma"].lower())
         hieT1 = des.sct2hierarkiak(kod1)
         if hieT1:
             #print(forma,hieT1)
@@ -202,22 +202,33 @@ def snomedIdentifikatu(tagged,des,luzeenaBool):
 
     #ZATI HAU, TERMINO LUZEENA BAKARRIK HARTZKEO ERABILTZEN DA
     if luzeenaBool:
-        fOrdenatuak = fAgertuak[:]
-        fOrdenatuak.sort(key=lambda x: len(x.split()))
-        for i in range(0,len(fOrdenatuak)):
-            unekoa = fOrdenatuak.pop(0)
-            aurkitua = False 
+        # fOrdenatuak = fAgertuak[:]
+        # fOrdenatuak.sort(key=lambda x: len(x.split()))
+        # for i in range(0,len(fOrdenatuak)):
+        #     unekoa = fOrdenatuak.pop(0)
+        #     aurkitua = False 
+        #     j = 0
+        #     while not aurkitua and j< len(fOrdenatuak):
+        #         if unekoa in fOrdenatuak[j]:
+        #             aurkitua = True
+        #         j += 1
+        hOrdenatuak = sorted(hInd,key = lambda x: (x[0],-x[1]))
+        hILag = []
+        for hI in hOrdenatuak:
+            aurkitua = False
             j = 0
-            while not aurkitua and j< len(fOrdenatuak):
-                if unekoa in fOrdenatuak[j]:
+            while not aurkitua and j < len(hILag):
+                if hI[0] >= hILag[j][0] and hI[1] <= hILag[j][1]:
                     aurkitua = True
                 j += 1
             if aurkitua:
-                ind = fAgertuak.index(unekoa)
+                ind = hInd.index(hI)
                 hInd.pop(ind)
                 fAgertuak.pop(ind)
                 hvalue.pop(ind)
                 cvalue.pop(ind)
+            else:
+                hILag.append(hI)
     l = 0
     for inP in hInd:
         i = inP[0]
@@ -315,3 +326,4 @@ if __name__ == "__main__":
     pprint(hie)
     pprint(mul)
     pprint(abst)
+    print(len(hie))
